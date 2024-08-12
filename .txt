@@ -1,0 +1,169 @@
+1. Users Table
+CREATE TABLE Users (
+    user_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    role ENUM('student', 'mentor', 'admin') NOT NULL,
+    profile_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+2. Courses Table
+CREATE TABLE Courses (
+    course_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_name VARCHAR(255) NOT NULL,
+    course_description TEXT,
+    course_duration INT, -- in hours
+    course_level ENUM('beginner', 'intermediate', 'advanced') NOT NULL,
+    course_image VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);
+
+3. Modules Table
+
+CREATE TABLE Modules (
+    module_id INT AUTO_INCREMENT PRIMARY KEY,
+    course_id INT,
+    module_name VARCHAR(255) NOT NULL,
+    module_description TEXT,
+    module_duration INT, -- in hours
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+);
+
+4. Lessons Table
+
+CREATE TABLE Lessons (
+    lesson_id INT AUTO_INCREMENT PRIMARY KEY,
+    module_id INT,
+    lesson_name VARCHAR(255) NOT NULL,
+    lesson_content TEXT,
+    lesson_video_url VARCHAR(255),
+    lesson_duration INT, -- in minutes
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (module_id) REFERENCES Modules(module_id) ON DELETE CASCADE
+);
+
+
+5. Enrollments Table
+CREATE TABLE Enrollments (
+    enrollment_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    course_id INT,
+    enrolled_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    progress DECIMAL(5, 2) DEFAULT 0.00, -- Progress in percentage
+    completion_date TIMESTAMP NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+);
+
+6. Assignments Table
+CREATE TABLE Assignments (
+    assignment_id INT AUTO_INCREMENT PRIMARY KEY,
+    module_id INT,
+    assignment_name VARCHAR(255) NOT NULL,
+    assignment_description TEXT,
+    due_date TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (module_id) REFERENCES Modules(module_id) ON DELETE CASCADE
+);
+
+
+7. Submissions Table
+CREATE TABLE Submissions (
+    submission_id INT AUTO_INCREMENT PRIMARY KEY,
+    assignment_id INT,
+    user_id INT,
+    submission_content TEXT,
+    submission_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    grade VARCHAR(10),
+    feedback TEXT,
+    FOREIGN KEY (assignment_id) REFERENCES Assignments(assignment_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+8. Discussion Table
+CREATE TABLE Discussion (
+    discussion_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    course_id INT,
+    discussion_title VARCHAR(255) NOT NULL,
+    discussion_content TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (course_id) REFERENCES Courses(course_id) ON DELETE CASCADE
+);
+
+
+9. Comments Table
+
+CREATE TABLE Comments (
+    comment_id INT AUTO_INCREMENT PRIMARY KEY,
+    discussion_id INT,
+    user_id INT,
+    comment_content TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (discussion_id) REFERENCES Discussion(discussion_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+10. Notifications Table
+CREATE TABLE Notifications (
+    notification_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    notification_content VARCHAR(255) NOT NULL,
+    is_read BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
+
+11. Quiz Table
+
+CREATE TABLE Quiz (
+    quiz_id INT AUTO_INCREMENT PRIMARY KEY,
+    module_id INT,
+    quiz_name VARCHAR(255) NOT NULL,
+    quiz_description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (module_id) REFERENCES Modules(module_id) ON DELETE CASCADE
+);
+
+
+12. Quiz_Questions Table
+
+CREATE TABLE Quiz_Questions (
+    question_id INT AUTO_INCREMENT PRIMARY KEY,
+    quiz_id INT,
+    question_text TEXT NOT NULL,
+    option_a VARCHAR(255) NOT NULL,
+    option_b VARCHAR(255) NOT NULL,
+    option_c VARCHAR(255) NOT NULL,
+    option_d VARCHAR(255) NOT NULL,
+    correct_option CHAR(1) NOT NULL, -- 'A', 'B', 'C', or 'D'
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id) ON DELETE CASCADE
+);
+
+13. Quiz_Submissions Table
+
+CREATE TABLE Quiz_Submissions (
+    quiz_submission_id INT AUTO_INCREMENT PRIMARY KEY,
+    quiz_id INT,
+    user_id INT,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    score INT,
+    FOREIGN KEY (quiz_id) REFERENCES Quiz(quiz_id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(user_id) ON DELETE CASCADE
+);
+
